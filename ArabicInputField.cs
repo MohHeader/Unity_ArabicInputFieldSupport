@@ -67,15 +67,35 @@ public class ArabicInputField : InputField {
 		}
 	}
 
-
-	protected void KeyPressed2 (Event evt){
+	private bool hasSelection
+	{
+		get
+		{
+			return this.caretPositionInternal != this.caretSelectPositionInternal;
+		}
+	}
+	
+	protected InputField.EditState KeyPressed2 (Event evt){
 		switch (evt.keyCode) {
 		case KeyCode.Backspace:
-			if (this.caretPositionInternal > 0)
-				this.o_text = this.o_text.Remove (this.caretPositionInternal - 1, 1);
-			break;
+			if (this.hasSelection)
+			{
+				this.Delete ();
+			}
+			else
+			{
+				if (this.caretPositionInternal > 0)
+				{
+					this.o_text = this.o_text.Remove (this.caretPositionInternal - 1, 1);
+					this.m_Text = ArabicSupport.ArabicFixer.Fix(o_text, false, true);
+					int num = this.caretPositionInternal - 1;
+					this.caretPositionInternal = num;
+					this.caretSelectPositionInternal = num;
+				}
+			}
+			return InputField.EditState.Continue;
 		}
-
+		return InputField.EditState.Continue;
 	}
 
 	private Event m_ProcessingEvent = new Event ();
@@ -91,8 +111,12 @@ public class ArabicInputField : InputField {
 			if (this.m_ProcessingEvent.rawType == EventType.KeyDown)
 			{
 				flag = true;
-				this.KeyPressed2 (this.m_ProcessingEvent);
-				InputField.EditState editState = this.KeyPressed (this.m_ProcessingEvent);
+				InputField.EditState editState;
+				if(this.m_ProcessingEvent.keyCode == KeyCode.Backspace){
+					editState = this.KeyPressed2 (this.m_ProcessingEvent);
+				}else
+					editState = this.KeyPressed (this.m_ProcessingEvent);
+
 				if (editState == InputField.EditState.Finish)
 				{
 					this.DeactivateInputField ();
