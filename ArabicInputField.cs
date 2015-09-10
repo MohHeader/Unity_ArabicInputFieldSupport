@@ -55,6 +55,8 @@ public class ArabicInputField : InputField {
 		{
 			return;
 		}
+		//TODO: Now Buggy if English Letters !!
+		/*
 		if (this.caretPositionInternal < this.caretSelectPositionInternal)
 		{
 			this.m_Text = this.text.Substring (0, this.caretPositionInternal) + this.text.Substring (this.caretSelectPositionInternal, this.text.Length - this.caretSelectPositionInternal);
@@ -65,6 +67,26 @@ public class ArabicInputField : InputField {
 			this.m_Text = this.text.Substring (0, this.caretSelectPositionInternal) + this.text.Substring (this.caretPositionInternal, this.text.Length - this.caretPositionInternal);
 			this.caretPositionInternal = this.caretSelectPositionInternal;
 		}
+		*/
+
+		int start;
+		int end;
+
+		if (this.caretPositionInternal < this.caretSelectPositionInternal)
+		{
+			start = this.caretSelectPositionInternal;
+			end = this.caretPositionInternal;
+			this.caretSelectPositionInternal = this.caretPositionInternal;
+		}
+		else
+		{
+			start = this.caretPositionInternal;
+			end = this.caretSelectPositionInternal;
+			this.caretPositionInternal = this.caretSelectPositionInternal;
+		}
+
+		this.o_text = this.o_text.Substring (0, o_text.Length - start) + this.o_text.Substring (this.o_text.Length - end, this.o_text.Length - (this.o_text.Length - end));
+		this.m_Text = ArabicSupport.ArabicFixer.Fix(o_text, false, true);
 	}
 
 	private bool hasSelection
